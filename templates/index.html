@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AAVA - AI Agricultural Voice Assistant</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="main-wrapper">
+    <!-- Hero Header -->
+    <header class="hero-header">
+      <div class="badge">🌾 Voice-First Agricultural Intelligence</div>
+      <h1 class="project-title">AAVA</h1>
+      <p class="subtitle">AI Agricultural Voice Assistant</p>
+      <p class="description">
+        Connecting rural farmers directly to live Mandi (Agmarknet) prices, price trend forecasts, and hyper-local weather updates using spoken natural regional languages.
+      </p>
+    </header>
+
+    <!-- Main Card Container -->
+    <main class="app-card">
+      <!-- Language Control -->
+      <div class="controls-single">
+        <div class="control-group">
+          <label for="lang">Select Preferred Language</label>
+          <select id="lang">
+            <option value="hi" selected>Hindi (हिंदी)</option>
+            <option value="en">English</option>
+            <option value="mr">Marathi (मराठी)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Voice Assistant Central Action -->
+      <div class="voice-action-container">
+        <button id="micBtn" class="mic-button" title="Click to Speak">
+          <div class="mic-icon">🎙️</div>
+          <span id="micStatus">Click Microphone & Speak</span>
+        </button>
+        <p class="voice-hint">Click the button and ask a question in Hindi, Marathi, or English</p>
+      </div>
+
+      <!-- Manual Query Input -->
+      <div class="query-input-box">
+        <textarea id="queryText" placeholder="Or type your question here (e.g. 'चेन्नई में टमाटर का दाम क्या है' or 'wheat price trend in Indore')..."></textarea>
+        <button id="askBtn" class="primary-btn">Ask AAVA</button>
+      </div>
+
+      <!-- Sample Prompts -->
+      <div class="samples-container">
+        <span class="samples-label">Try Asking:</span>
+        <button class="sample-chip" data-q="इंदौर में गेहूं का भाव क्या है?">Indore Wheat Price</button>
+        <button class="sample-chip" data-q="Chennai me tomato ka price kya hai?">Chennai Tomato Price</button>
+        <button class="sample-chip" data-q="Wheat price trend tomorrow?">Wheat Trend Forecast</button>
+        <button class="sample-chip" data-q="Weather update for Chennai">Chennai Weather</button>
+      </div>
+
+      <!-- Output Result Card -->
+      <section id="result" class="result-card hidden">
+        <div class="result-header">
+          <h3>🔊 Spoken Answer</h3>
+          <button id="replayAudioBtn" class="secondary-btn">🔊 Replay Voice Response</button>
+        </div>
+        <p id="responseText" class="response-text"></p>
+      </section>
+    </main>
+
+    <!-- Project Features Grid -->
+    <section class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🗣️</div>
+        <h4>Zero-Barrier Voice Interface</h4>
+        <p>Eliminates smartphone UI complexity and textual literacy barriers by accepting natural, regional spoken dialect.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h4>Live Government Data</h4>
+        <p>Directly queries Agmarknet (data.gov.in) APIs for real-time daily wholesale market commodity prices across Indian APMCs.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📈</div>
+        <h4>Linear Regression Forecasting</h4>
+        <p>Calculates short-term daily price trends using least-squares linear regression with R² confidence scoring.</p>
+      </div>
+    </section>
+
+    <footer>
+      <p>AAVA Project • AI Agricultural Voice Assistant Prototype</p>
+    </footer>
+  </div>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
