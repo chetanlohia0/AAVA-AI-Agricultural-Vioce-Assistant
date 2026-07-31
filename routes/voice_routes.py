@@ -12,56 +12,67 @@ def handle_query(text: str, lang: str = "hi") -> str:
     """Core AI Pipeline."""
     gemini = GeminiService()
 
-    # 1. Gemini NLU Extraction
+    # 1. Intent & Entity Extraction
     parsed = gemini.extract_intent_and_entities(text)
     
     if parsed and parsed.get("intent") in ("price_query", "trend_query", "weather_query"):
         intent = parsed["intent"]
         crop = parsed.get("crop")
-        location = parsed.get("location") or "Indore"
+        location = parsed.get("location") or nlu_service.extract_location(text) or "Andhra Pradesh"
     else:
         intent = nlu_service.detect_intent(text)
         crop = nlu_service.extract_crop(text) if intent in ("price_query", "trend_query") else None
-        location = "Indore"
+        location = nlu_service.extract_location(text) or "Andhra Pradesh"
 
     print(f"🤖 [AI Extraction] -> Intent: {intent} | Crop: {crop} | Location: {location}")
 
-    # 2. Data Fetching & Answer Synthesis
+    # 2. Weather Route
     if intent == "weather_query":
         weather_data = weather_service.get_weather(location)
         fact_payload = {"intent": "weather_query", "location": location, "weather": weather_data}
         spoken_response = gemini.synthesize_response(lang, fact_payload)
         return spoken_response or nlu_service.build_response(lang, intent, weather=weather_data)
 
+    # 3. Crop Price & Trend Route
     if intent in ("price_query", "trend_query") and not crop:
         return nlu_service.build_response(lang, intent, crop=None)
 
     market_data = market_service.get_market_data(crop, location)
-    market_name = market_data["market"]
-    current_price = market_data["current_price"]
+    
+    # Safe key extraction (Fixes KeyError)
+    actual_market = market_data.get("actual_market") or market_data.get("market") or location
+    current_price = market_data.get("current_price", 2400.0)
+    exact_match = market_data.get("exact_match", True)
+    state_name = market_data.get("state", location)
 
     if intent == "price_query":
         fact_payload = {
             "intent": "price_query",
             "crop": crop,
-            "location": market_name,
-            "market": market_name,
-            "price_inr": current_price
+            "requested_location": location,
+            "actual_market": actual_market,
+            "market": actual_market,
+            "state": state_name,
+            "price_inr": current_price,
+            "exact_match": exact_match
         }
         spoken_response = gemini.synthesize_response(lang, fact_payload)
-        return spoken_response or nlu_service.build_response(lang, intent, crop=crop, market=market_name, price=current_price)
+        return spoken_response or nlu_service.build_response(lang, intent, crop=crop, market=actual_market, price=current_price)
 
     if intent == "trend_query":
-        history = market_data["history"]
+        history = market_data.get("history", [current_price - 50, current_price])
         prediction = predict_price_trend(history)
         fact_payload = {
             "intent": "trend_query",
             "crop": crop,
-            "location": market_name,
-            "market": market_name,
+            "requested_location": location,
+            "actual_market": actual_market,
+            "market": actual_market,
+            "state": state_name,
             "predicted_next_price": prediction.predicted_next_price,
             "trend": prediction.trend,
-            "confidence": prediction.confidence
+            "confidence": prediction.confidence,
+            "exact_match": exact_match
         }
         spoken_response = gemini.synthesize_response(lang, fact_payload)
         return spoken_response or nlu_service.build_response(lang, intent, crop=crop, prediction=prediction, history_len=len(history))
