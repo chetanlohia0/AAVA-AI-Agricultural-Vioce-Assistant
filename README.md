@@ -80,86 +80,6 @@ India supports over 100 million agricultural holdings, with over 80% operated by
 
 
 
-Here is the complete, updated **`README.md`** file with all author and editor references removed. You can copy the code block below directly into your repository's `README.md` file.
-
-```markdown
-# 🌾 AAVA - AI Agricultural Voice Assistant
-
-[![Python Version](https://img.shields.io/badge/Python-3.14-green.svg)](https://www.python.org/)
-[![Framework](https://img.shields.io/badge/Framework-Flask-blue.svg)](https://flask.palletsprojects.com/)
-[![AI Engine](https://img.shields.io/badge/AI%20Engine-Gemini%202.0%20Flash-orange.svg)](https://ai.google.dev/)
-[![Data Source](https://img.shields.io/badge/Data-Agmarknet%20(data.gov.in)-emerald.svg)](https://data.gov.in/)
-[![License](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
-
-A voice-first, channel-agnostic AI assistant that allows rural farmers in India to speak naturally in their native regional language (**Hindi, Marathi, English**) over a standard phone call or web interface to access live market prices (Agmarknet), short-term price trend forecasts, and hyper-local weather updates.
-
-Developed as an enterprise internship project.
-
----
-
-## 📋 Table of Contents
-* [Problem Statement & Objectives](#-problem-statement--objectives)
-* [System Architecture](#-system-architecture)
-* [Key Features](#-key-features)
-* [Directory Structure](#-directory-structure)
-* [Tech Stack](#-tech-stack)
-* [Predictive Mathematics & Forecasting](#-predictive-mathematics--forecasting)
-* [How to Run Locally](#-how-to-run-locally)
-* [API & Diagnostic Suite](#-api--diagnostic-suite)
-* [Sample Voice Queries](#-sample-queries-tested)
-
----
-
-## 🎯 Problem Statement & Objectives
-
-### The Challenge
-India supports over 100 million agricultural holdings, with over 80% operated by smallholder farmers. Although digital public infrastructure platforms like Agmarknet publish daily prices across thousands of APMC mandis, this data fails to reach primary producers due to three critical barriers:
-
-1. **Hardware & Network Exclusion:** Most rural farmers rely on basic feature phones or shared family devices with intermittent cellular connectivity, rendering heavy smartphone apps unusable.
-2. **Literacy & Script Exclusion:** Existing web portals rely on complex text search boxes, English labels, and graphical charts that exclude farmers who communicate exclusively through spoken regional dialects.
-3. **Information Asymmetry:** Lacking real-time price trends, farmers are forced to sell blindly to local middlemen (*arhtiyas*), suffering significant profit loss.
-
-### Objectives
-* **Zero-UI Voice Terminal:** Build an accessible interface accepting spoken queries in local dialects and delivering immediate spoken audio responses.
-* **Live Data Coupling:** Integrate directly with official government market data gateways (`data.gov.in`) with ultra-low response latency ($< 0.5\text{ seconds}$).
-* **Explainable Price Trend Signals:** Provide actionable, same-day trend forecasts (*rising, falling, stable*) with mathematical confidence labels ($R^2$).
-* **Channel-Agnostic Core:** Engineer a decoupled AI engine that powers web dashboards, local microphone execution, and GSM telephony lines (via Twilio/Exotel Webhooks) identically.
-
----
-
-## 📐 System Architecture
-
-```text
-[Spoken Farmer Query] ➔ [ASR / Web Speech API] ➔ [Raw Audio Transcript]
-                                                       │
-                                                       ▼
-                                          ┌──────────────────────────┐
-                                          │  Gemini 2.0 Flash NLU    │
-                                          └────────────┬─────────────┘
-                                                       │ (Structured JSON)
-                                                       ▼
-                                          ┌──────────────────────────┐
-                                          │   Flask Orchestrator     │
-                                          └────────────┬─────────────┘
-                                                       │
-            ┌──────────────────────────────────────────┼──────────────────────────────────────────┐
-            ▼                                          ▼                                          ▼
-┌──────────────────────┐                    ┌──────────────────────┐                   ┌──────────────────────┐
-│  Agmarknet Mandi API │                    │ Linear Regression    │                   │ OpenWeatherMap API   │
-│  (data.gov.in)       │                    │ Forecast (y = mx + c)│                   │ (Hyper-local)        │
-└───────────┬──────────┘                    └──────────┬───────────┘                   └──────────┬───────────┘
-            │                                          │                                          │
-            └──────────────────────────────────────────┼──────────────────────────────────────────┘
-                                                       │ (Raw Metrics Payload)
-                                                       ▼
-                                          ┌──────────────────────────┐
-                                          │ Gemini Answer Synthesizer│
-                                          └────────────┬─────────────┘
-                                                       │ (Regional Text Response)
-                                                       ▼
-                                          ┌──────────────────────────┐
-                                          │  gTTS / Speaker Audio    │
-                                          └──────────────────────────┘
 
 ```
 
@@ -263,8 +183,7 @@ $$R^2 = 1 - \frac{\sum_{i=0}^{n-1} (y_i - (m x_i + c))^2}{\sum_{i=0}^{n-1} (y_i 
 Clone the repository and install dependencies:
 
 ```bash
-git clone [https://github.com/](https://github.com/)<your-username>/AAVA.git
-cd AAVA
+git clone https://github.com/chetanlohia0/AAVA-AI-Agricultural-Vioce-Assistant.git
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
