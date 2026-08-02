@@ -1,69 +1,3 @@
-# AAVA — AI Agricultural Voice Assistant
-
-A voice-first assistant that lets rural farmers dial a phone number and ask, in their own
-regional language, for live mandi (market) prices, short-term price trend forecasts, and
-weather updates — no smartphone or app literacy required.
-
-## Problem It Solves
-Rural Indian farmers often can't access live market prices or trend information because
-existing government portals and agri-apps assume smartphone/web fluency and a language the
-farmer may not read. AAVA removes both barriers: farmers speak naturally in their own
-language over a normal phone call and get an instant spoken answer.
-
-## How It Works
-```
-Farmer's phone call
-      |
-      v
-Twilio Voice Webhook  --(speech-to-text)-->  Transcribed query
-      |
-      v
-NLU (intent + crop-name extraction)
-      |
-      +--> price_query   --> Market Service (live/mock mandi prices)
-      +--> trend_query   --> Market Service (history) --> Linear Regression Predictor
-      +--> weather_query --> Weather Service (OpenWeatherMap)
-      |
-      v
-Multilingual response template (Hindi / Marathi / English)
-      |
-      v
-Twilio Voice  --(text-to-speech)-->  Spoken answer to farmer
-```
-
-## Core Algorithm: Linear Regression for Price Trend Forecasting
-`backend/algorithms/price_predictor.py` implements least-squares linear regression from
-scratch (no external ML library for the math itself) to fit a trend line through a crop's
-recent daily mandi prices, forecast tomorrow's price, and classify the trend as
-rising/falling/stable with a confidence label based on R². See the project report PDF for
-the full explanation and the formulas used.
-
-## Project Structure
-```
-AAVA/
-└── backend/
-    ├── app.py                  # Flask entry point
-    ├── requirements.txt
-    ├── .env.example
-    ├── algorithms/
-    │   └── price_predictor.py  # linear regression trend forecaster
-    ├── services/
-    │   ├── market_service.py   # mandi price data (Agmarknet integration point + demo data)
-    │   ├── weather_service.py  # OpenWeatherMap integration point + demo data
-    │   └── nlu_service.py      # intent detection, crop extraction, multilingual responses
-    ├── routes/
-    │   └── voice_routes.py     # Twilio voice webhooks + browser demo endpoint
-    ├── data/
-    │   └── sample_prices.csv   # demo historical mandi price dataset
-    ├── templates/index.html    # browser demo dashboard
-    └── static/                 # dashboard CSS/JS
-```
-
-Here is the complete, full-length **`README.md`** file formatted in standard GitHub Markdown.
-
-You can copy the code block below directly and paste it into your `README.md` file in the root of your project directory.
-
-```markdown
 # 🌾 AAVA - AI Agricultural Voice Assistant
 
 [![Python Version](https://img.shields.io/badge/Python-3.14-green.svg)](https://www.python.org/)
@@ -74,7 +8,7 @@ You can copy the code block below directly and paste it into your `README.md` fi
 
 A voice-first, channel-agnostic AI assistant that allows rural farmers in India to speak naturally in their native regional language (**Hindi, Marathi, English**) over a standard phone call or web interface to access live market prices (Agmarknet), short-term price trend forecasts, and hyper-local weather updates.
 
-Developed as an enterprise internship project by **Chetan Lohia** and **Rahul Jha**.
+Developed as an enterprise internship project.
 
 ---
 
@@ -88,7 +22,6 @@ Developed as an enterprise internship project by **Chetan Lohia** and **Rahul Jh
 * [How to Run Locally](#-how-to-run-locally)
 * [API & Diagnostic Suite](#-api--diagnostic-suite)
 * [Sample Voice Queries](#-sample-queries-tested)
-* [Authors & Credits](#-authors--credits)
 
 ---
 
@@ -111,39 +44,122 @@ India supports over 100 million agricultural holdings, with over 80% operated by
 
 ## 📐 System Architecture
 
-
-```
-
+```text
 [Spoken Farmer Query] ➔ [ASR / Web Speech API] ➔ [Raw Audio Transcript]
-│
-▼
-┌──────────────────────────┐
-│  Gemini 2.0 Flash NLU    │
-└────────────┬─────────────┘
-│ (Structured JSON)
-▼
-┌──────────────────────────┐
-│   Flask Orchestrator     │
-└────────────┬─────────────┘
-│
-┌──────────────────────────────────────────┼──────────────────────────────────────────┐
-▼                                          ▼                                          ▼
+                                                       │
+                                                       ▼
+                                          ┌──────────────────────────┐
+                                          │  Gemini 2.0 Flash NLU    │
+                                          └────────────┬─────────────┘
+                                                       │ (Structured JSON)
+                                                       ▼
+                                          ┌──────────────────────────┐
+                                          │   Flask Orchestrator     │
+                                          └────────────┬─────────────┘
+                                                       │
+            ┌──────────────────────────────────────────┼──────────────────────────────────────────┐
+            ▼                                          ▼                                          ▼
 ┌──────────────────────┐                    ┌──────────────────────┐                   ┌──────────────────────┐
 │  Agmarknet Mandi API │                    │ Linear Regression    │                   │ OpenWeatherMap API   │
 │  (data.gov.in)       │                    │ Forecast (y = mx + c)│                   │ (Hyper-local)        │
 └───────────┬──────────┘                    └──────────┬───────────┘                   └──────────┬───────────┘
-│                                          │                                          │
-└──────────────────────────────────────────┼──────────────────────────────────────────┘
-│ (Raw Metrics Payload)
-▼
-┌──────────────────────────┐
-│ Gemini Answer Synthesizer│
-└────────────┬─────────────┘
-│ (Regional Text Response)
-▼
-┌──────────────────────────┐
-│  gTTS / Speaker Audio    │
-└──────────────────────────┘
+            │                                          │                                          │
+            └──────────────────────────────────────────┼──────────────────────────────────────────┘
+                                                       │ (Raw Metrics Payload)
+                                                       ▼
+                                          ┌──────────────────────────┐
+                                          │ Gemini Answer Synthesizer│
+                                          └────────────┬─────────────┘
+                                                       │ (Regional Text Response)
+                                                       ▼
+                                          ┌──────────────────────────┐
+                                          │  gTTS / Speaker Audio    │
+                                          └──────────────────────────┘
+
+
+
+
+
+Here is the complete, updated **`README.md`** file with all author and editor references removed. You can copy the code block below directly into your repository's `README.md` file.
+
+```markdown
+# 🌾 AAVA - AI Agricultural Voice Assistant
+
+[![Python Version](https://img.shields.io/badge/Python-3.14-green.svg)](https://www.python.org/)
+[![Framework](https://img.shields.io/badge/Framework-Flask-blue.svg)](https://flask.palletsprojects.com/)
+[![AI Engine](https://img.shields.io/badge/AI%20Engine-Gemini%202.0%20Flash-orange.svg)](https://ai.google.dev/)
+[![Data Source](https://img.shields.io/badge/Data-Agmarknet%20(data.gov.in)-emerald.svg)](https://data.gov.in/)
+[![License](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
+
+A voice-first, channel-agnostic AI assistant that allows rural farmers in India to speak naturally in their native regional language (**Hindi, Marathi, English**) over a standard phone call or web interface to access live market prices (Agmarknet), short-term price trend forecasts, and hyper-local weather updates.
+
+Developed as an enterprise internship project.
+
+---
+
+## 📋 Table of Contents
+* [Problem Statement & Objectives](#-problem-statement--objectives)
+* [System Architecture](#-system-architecture)
+* [Key Features](#-key-features)
+* [Directory Structure](#-directory-structure)
+* [Tech Stack](#-tech-stack)
+* [Predictive Mathematics & Forecasting](#-predictive-mathematics--forecasting)
+* [How to Run Locally](#-how-to-run-locally)
+* [API & Diagnostic Suite](#-api--diagnostic-suite)
+* [Sample Voice Queries](#-sample-queries-tested)
+
+---
+
+## 🎯 Problem Statement & Objectives
+
+### The Challenge
+India supports over 100 million agricultural holdings, with over 80% operated by smallholder farmers. Although digital public infrastructure platforms like Agmarknet publish daily prices across thousands of APMC mandis, this data fails to reach primary producers due to three critical barriers:
+
+1. **Hardware & Network Exclusion:** Most rural farmers rely on basic feature phones or shared family devices with intermittent cellular connectivity, rendering heavy smartphone apps unusable.
+2. **Literacy & Script Exclusion:** Existing web portals rely on complex text search boxes, English labels, and graphical charts that exclude farmers who communicate exclusively through spoken regional dialects.
+3. **Information Asymmetry:** Lacking real-time price trends, farmers are forced to sell blindly to local middlemen (*arhtiyas*), suffering significant profit loss.
+
+### Objectives
+* **Zero-UI Voice Terminal:** Build an accessible interface accepting spoken queries in local dialects and delivering immediate spoken audio responses.
+* **Live Data Coupling:** Integrate directly with official government market data gateways (`data.gov.in`) with ultra-low response latency ($< 0.5\text{ seconds}$).
+* **Explainable Price Trend Signals:** Provide actionable, same-day trend forecasts (*rising, falling, stable*) with mathematical confidence labels ($R^2$).
+* **Channel-Agnostic Core:** Engineer a decoupled AI engine that powers web dashboards, local microphone execution, and GSM telephony lines (via Twilio/Exotel Webhooks) identically.
+
+---
+
+## 📐 System Architecture
+
+```text
+[Spoken Farmer Query] ➔ [ASR / Web Speech API] ➔ [Raw Audio Transcript]
+                                                       │
+                                                       ▼
+                                          ┌──────────────────────────┐
+                                          │  Gemini 2.0 Flash NLU    │
+                                          └────────────┬─────────────┘
+                                                       │ (Structured JSON)
+                                                       ▼
+                                          ┌──────────────────────────┐
+                                          │   Flask Orchestrator     │
+                                          └────────────┬─────────────┘
+                                                       │
+            ┌──────────────────────────────────────────┼──────────────────────────────────────────┐
+            ▼                                          ▼                                          ▼
+┌──────────────────────┐                    ┌──────────────────────┐                   ┌──────────────────────┐
+│  Agmarknet Mandi API │                    │ Linear Regression    │                   │ OpenWeatherMap API   │
+│  (data.gov.in)       │                    │ Forecast (y = mx + c)│                   │ (Hyper-local)        │
+└───────────┬──────────┘                    └──────────┬───────────┘                   └──────────┬───────────┘
+            │                                          │                                          │
+            └──────────────────────────────────────────┼──────────────────────────────────────────┘
+                                                       │ (Raw Metrics Payload)
+                                                       ▼
+                                          ┌──────────────────────────┐
+                                          │ Gemini Answer Synthesizer│
+                                          └────────────┬─────────────┘
+                                                       │ (Regional Text Response)
+                                                       ▼
+                                          ┌──────────────────────────┐
+                                          │  gTTS / Speaker Audio    │
+                                          └──────────────────────────┘
 
 ```
 
@@ -345,12 +361,7 @@ python test_agmarknet_standalone.py
 
 ---
 
-## 👥 Authors & Credits
-
-* **Chetan Lohia** — Systems Architecture, Backend Engineering & API Optimizations
-* **Rahul Jha** — AI Integration, NLU Orchestration & Mathematical Forecasting
-
-Developed for Internship Portfolio Submission (July 2026).
+Developed for Internship Portfolio Submission.
 
 ```
 
