@@ -1,5 +1,15 @@
+# Virtual Environment
 venv/
-__pycache__/
-*.pyc
+ENV/
+env/
+
+# Environment Variables & Secrets (CRITICAL)
 .env
-*.log
+
+# Python Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+
+
