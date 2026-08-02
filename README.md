@@ -280,8 +280,3 @@ python test_agmarknet_standalone.py
 
 ---
 
-Developed for Internship Portfolio Submission.
-
-```
-
-```
